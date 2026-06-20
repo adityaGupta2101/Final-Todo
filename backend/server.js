@@ -6,14 +6,6 @@ const cors = require("cors");
 
 const connectDB = require("./config/db");
 
-// Import controllers
-const {
-  getTasks,
-  createTask,
-  deleteTask,
-  updateTask
-} = require("./controller/taskController");
-
 const app = express();
 
 // Middleware
@@ -28,15 +20,15 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Routes (MVC style)
-// app.get("/tasks", getTasks);
-// app.post("/tasks", createTask);
-// app.delete("/tasks/:id", deleteTask);
-// app.put("/tasks/:id", updateTask);
-
+// Routes
 const taskRoutes = require("./routes/taskRoutes");
-// API routes
+const authRoutes = require("./routes/authRoutes");
+
+// Task routes
 app.use("/tasks", taskRoutes);
+
+// Auth routes
+app.use("/api/auth", authRoutes);
 
 // Server start
 const PORT = process.env.PORT || 5000;
