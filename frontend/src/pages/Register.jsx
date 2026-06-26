@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -27,63 +27,48 @@ const Register = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister} style={styles.form}>
-        <input
-          type="text"
-          placeholder="Enter Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={styles.input}
-        />
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Create Account</h2>
+        <p className="auth-subtitle">Join your Todo Manager</p>
 
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
+        <form onSubmit={handleRegister} className="auth-form">
+          <input
+            type="text"
+            placeholder="Enter Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
+          <input
+            type="email"
+            placeholder="Enter Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
 
-        <button type="submit" style={styles.button}>
-          Register
-        </button>
-      </form>
+          <input
+            type="password"
+            placeholder="Enter Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
+
+          <button type="submit">Register</button>
+        </form>
+
+        <p className="auth-footer-text">
+          Already have an account? <Link to="/login">Login Here</Link>
+        </p>
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    width: "300px",
-    margin: "40px auto",
-    textAlign: "center"
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px"
-  },
-  input: {
-    padding: "10px",
-    fontSize: "16px"
-  },
-  button: {
-    padding: "10px",
-    background: "blue",
-    color: "white",
-    border: "none",
-    cursor: "pointer"
-  }
 };
 
 export default Register;

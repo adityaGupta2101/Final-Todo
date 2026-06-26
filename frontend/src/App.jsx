@@ -9,12 +9,16 @@ const App = () => {
     <div className="app-wrapper">
       {/* Top Navbar */}
       <div className="top-navbar">
-        <Link to="/" className="nav-btn">Home</Link>
-        <Link to="/login" className="nav-btn">Login</Link>
-        <Link to="/register" className="nav-btn">Register</Link>
+        <div className="nav-brand">Todo Manager</div>
+
+        <div className="nav-links">
+          <Link to="/" className="nav-btn">Home</Link>
+          <Link to="/login" className="nav-btn">Login</Link>
+          <Link to="/register" className="nav-btn">Register</Link>
+        </div>
       </div>
 
-      {/* Page Routes */}
+      {/* Routes */}
       <Routes>
         <Route path="/" element={<Task />} />
         <Route path="/login" element={<Login />} />

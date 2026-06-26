@@ -33,11 +33,13 @@ const createTask = async (req, res) => {
 // @desc    Delete a task of logged-in user
 // @route   DELETE /tasks/:id
 const deleteTask = async (req, res) => {
+  
   try {
     const deletedTask = await Task.findOneAndDelete({
       _id: req.params.id,
       user: req.user.id
     });
+    console.log("Deleting task with ID:", req.params.id);
 
     if (!deletedTask) {
       return res.status(404).json({ message: "Task not found" });
