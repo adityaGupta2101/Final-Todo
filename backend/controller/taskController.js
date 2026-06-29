@@ -4,13 +4,54 @@ const Task = require("../models/Task");
 // @route   GET /tasks
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user.id }).sort({ createdAt: -1 });
-    res.json(tasks);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 2;
+    const skip = (page - 1) * limit;
+
+    const search = req.query.search || "";
+
+    const query = {
+      user: req.user.id,
+      task: {
+        $regex: search,
+        $options: "i",
+      },
+    };
+
+    // Current page tasks
+    const tasks = await Task.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Total searched tasks
+    const totalTasks = await Task.countDocuments(query);
+
+    // Overall stats
+    const completedTasks = await Task.countDocuments({
+      user: req.user.id,
+      completed: true,
+    });
+
+    const pendingTasks = await Task.countDocuments({
+      user: req.user.id,
+      completed: false,
+    });
+
+    res.json({
+      tasks,
+      currentPage: page,
+      totalPages: Math.ceil(totalTasks / limit),
+      totalTasks,
+      completedTasks,
+      pendingTasks,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
-
 // @desc    Create a new task for logged-in user
 // @route   POST /tasks
 const createTask = async (req, res) => {

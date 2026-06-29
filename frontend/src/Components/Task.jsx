@@ -5,9 +5,15 @@ import { useNavigate } from "react-router-dom";
 const Task = () => {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
+  const [totalTasks, setTotalTasks] = useState(0);
+const [completedTasks, setCompletedTasks] = useState(0);
+const [pendingTasks, setPendingTasks] = useState(0);
   const [editId, setEditId] = useState(null);
 
   // SEARCH STATES
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -21,12 +27,20 @@ const Task = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get("http://localhost:5000/tasks", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setTasks(response.data);
+     const response = await axios.get(
+     `http://localhost:5000/tasks?page=${currentPage}&limit=2&search=${searchTerm}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+      setTasks(response.data.tasks);
+      setTotalPages(response.data.totalPages);
+
+setTotalTasks(response.data.totalTasks);
+setCompletedTasks(response.data.completedTasks);
+setPendingTasks(response.data.pendingTasks);
     } catch (error) {
       console.error("Error fetching data:", error);
 
@@ -39,16 +53,16 @@ const Task = () => {
   };
 
   // check login + fetch tasks
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+useEffect(() => {
+  const token = localStorage.getItem("token");
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+  if (!token) {
+    navigate("/login");
+    return;
+  }
 
-    fetchData();
-  }, [navigate]);
+  fetchData();
+}, [navigate, currentPage, searchTerm]);
 
   // ADD or UPDATE task
   const handleAdd = async () => {
@@ -144,6 +158,7 @@ const Task = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
+    setCurrentPage(1);
 
     if (value.trim() === "") {
       setSuggestions([]);
@@ -169,10 +184,10 @@ const Task = () => {
     item.task.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // stats
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((item) => item.completed).length;
-  const pendingTasks = tasks.filter((item) => !item.completed).length;
+  // // stats
+  // const totalTasks = tasks.length;
+  // const completedTasks = tasks.filter((item) => item.completed).length;
+  // const pendingTasks = tasks.filter((item) => !item.completed).length;
 
   return (
     <div className="container">
@@ -277,68 +292,99 @@ const Task = () => {
       </div>
 
       {/* Task Section */}
-      <div className="tasks-section">
-        <h2 className="section-title">Your Tasks</h2>
+      {/* Task Section */}
+<div className="tasks-section">
+  <h2 className="section-title">Your Tasks</h2>
 
-        {filteredTasks.length > 0 ? (
-          <ul className="task-list">
-            {filteredTasks.map((item) => (
-              <li
-                key={item._id}
-                className={`task-item ${item.completed ? "task-completed" : ""}`}
+  {filteredTasks.length > 0 ? (
+    <>
+      <ul className="task-list">
+        {filteredTasks.map((item) => (
+          <li
+            key={item._id}
+            className={`task-item ${item.completed ? "task-completed" : ""}`}
+          >
+            <div className="task-left">
+              <div className="task-title-row">
+                <span className="task-badge-icon">
+                  {item.completed ? "✅" : "📌"}
+                </span>
+
+                <div className="task-text-group">
+                  <span className="task-title">{item.task}</span>
+
+                  <span
+                    className={`task-status ${
+                      item.completed
+                        ? "status-completed"
+                        : "status-pending"
+                    }`}
+                  >
+                    {item.completed ? "Completed" : "Pending"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="btn-group">
+              <button
+                onClick={() => handleToggleComplete(item)}
+                className={item.completed ? "undo-btn" : "complete-btn"}
               >
-                <div className="task-left">
-                  <div className="task-title-row">
-                    <span className="task-badge-icon">
-                      {item.completed ? "✅" : "📌"}
-                    </span>
+                {item.completed ? "Undo" : "Complete"}
+              </button>
 
-                    <div className="task-text-group">
-                      <span className="task-title">{item.task}</span>
-                      <span
-                        className={`task-status ${
-                          item.completed ? "status-completed" : "status-pending"
-                        }`}
-                      >
-                        {item.completed ? "Completed" : "Pending"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              <button
+                onClick={() => handleEdit(item)}
+                className="edit-btn"
+              >
+                Edit
+              </button>
 
-                <div className="btn-group">
-                  <button
-                    onClick={() => handleToggleComplete(item)}
-                    className={item.completed ? "undo-btn" : "complete-btn"}
-                  >
-                    {item.completed ? "Undo" : "Complete"}
-                  </button>
+              <button
+                onClick={() => handleDelete(item._id)}
+                className="delete-btn"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
 
-                  <button
-                    onClick={() => handleEdit(item)}
-                    className="edit-btn"
-                  >
-                    Edit
-                  </button>
+      {/* Pagination */}
+      <div className="pagination">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+        >
+          ⬅ Previous
+        </button>
 
-                  <button
-                    onClick={() => handleDelete(item._id)}
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="empty-state">
-            <div className="empty-icon">🔍</div>
-            <h3>No matching tasks found</h3>
-            <p>Try searching with a different keyword.</p>
-          </div>
-        )}
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+        >
+          Next ➡
+        </button>
       </div>
+    </>
+  ) : (
+    <div className="empty-state">
+      <div className="empty-icon">🔍</div>
+      <h3>No matching tasks found</h3>
+      <p>Try searching with a different keyword.</p>
+    </div>
+  )}
+</div>
+      
+          
+        
+       
 
       <p className="footer-note">
         Stay consistent. Small tasks completed daily lead to big results.

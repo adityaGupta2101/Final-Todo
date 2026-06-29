@@ -1031,6 +1031,42 @@ body {
   }
 }
 
+
+.pagination{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    margin-top:30px;
+    flex-wrap:wrap;
+}
+
+.pagination button{
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    background:#4f46e5;
+    color:#fff;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+}
+
+.pagination button:hover:not(:disabled){
+    background:#4338ca;
+}
+
+.pagination button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.pagination span{
+    font-size:17px;
+    font-weight:600;
+}
+
+
 /* =========================================
    VERY SMALL MOBILE
 ========================================= */
